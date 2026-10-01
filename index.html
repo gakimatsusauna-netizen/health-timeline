@@ -537,6 +537,12 @@ canvas.pure-canvas { width: 100%; height: 100%; display: block; }
           <button type="button" data-doctor-days="365">1年</button>
           <button type="button" data-doctor-days="0">全期間</button>
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+          <label>開始日<input type="date" id="doctorCustomStart" style="display:block;width:100%;margin-top:4px"></label>
+          <label>終了日<input type="date" id="doctorCustomEnd" style="display:block;width:100%;margin-top:4px"></label>
+        </div>
+        <button type="button" class="ghost-btn" id="doctorCustomApply" style="margin-top:8px">指定した期間を使う</button>
+        <div class="doctor-range-note" id="tabDoctorCustomNote"></div>
         <div class="doctor-range-note" id="tabDoctorRangeNote"></div>
       </div>
       <button class="primary-btn doctor-btn" id="doctorViewBtn">🩺 お医者さんに見せる</button>
@@ -784,7 +790,7 @@ canvas.pure-canvas { width: 100%; height: 100%; display: block; }
       </div>
     </div>
     <div id="lifeMealFields" style="display:none"><div class="field"><label>食事量</label><div class="meal-range-wrap"><input type="range" id="lifeMealAmount" min="0" max="3" step="1" value="1"><div class="meal-range-labels"><span>少量</span><span>普通</span><span>腹八分目</span><span>満腹</span></div><div class="meal-range-value" id="lifeMealAmountLabel">普通</div></div></div><div class="field"><label>食事の写真（任意）</label><input type="file" id="lifeMealPhoto" accept="image/*" capture="environment"><div class="hint">写真は縮小してこの端末内に保存します。</div><img id="lifeMealPhotoPreview" alt="食事写真プレビュー" style="display:none;max-width:100%;max-height:220px;border-radius:10px;margin-top:8px"></div></div>
-    <div id="lifeBowelFields" style="display:none"><div class="field"><label>便の形（複数選択可・任意）</label><div class="bowel-matrix-wrap"><div class="bowel-grid" id="lifeBowelMatrix" role="grid" aria-label="便の形と量"></div><div class="bowel-matrix-value" id="lifeBowelValue">必要な組み合わせを選択してください</div></div><div class="bleeding-matrix-hint">形が変わった場合は、当てはまるものを複数選択できます。⑥は泥状、⑦は水のような便です。</div></div><div class="field"><label>便の色（複数選択可）</label><div class="chip-select multi-select" id="lifeBowelColorChips"><button type="button" class="c" data-v="黄褐色">黄褐色</button><button type="button" class="c" data-v="茶色">茶色</button><button type="button" class="c" data-v="濃い茶色">濃い茶色</button><button type="button" class="c" data-v="緑">緑</button><button type="button" class="c" data-v="赤">赤</button><button type="button" class="c" data-v="暗赤色">暗赤色</button><button type="button" class="c" data-v="黒">黒</button><button type="button" class="c" data-v="白っぽい">白っぽい</button><button type="button" class="c" data-v="その他">その他</button></div><div class="hint">混ざっている色をすべて選択できます。血液が疑われる場合は補足にも記録してください。</div></div></div>
+    <div id="lifeBowelFields" style="display:none"><div class="field"><label>便の形（複数選択可・任意）</label><div class="bowel-matrix-wrap"><div class="bowel-grid" id="lifeBowelMatrix" role="grid" aria-label="便の形と量"></div><div class="bowel-matrix-value" id="lifeBowelValue">必要な組み合わせを選択してください</div></div><div class="bleeding-matrix-hint">形が変わった場合は、当てはまるものを複数選択できます。⑥は泥状、⑦は水のような便です。</div></div><div class="field"><label>便の色（複数選択可）</label><div class="chip-select multi-select" id="lifeBowelColorChips"><button type="button" class="c" data-v="黄褐色">黄褐色</button><button type="button" class="c" data-v="茶色">茶色</button><button type="button" class="c" data-v="濃い茶色">濃い茶色</button><button type="button" class="c" data-v="緑">緑</button><button type="button" class="c" data-v="赤">赤</button><button type="button" class="c" data-v="暗赤色">暗赤色</button><button type="button" class="c" data-v="黒">黒</button><button type="button" class="c" data-v="白っぽい">白っぽい</button><button type="button" class="c" data-v="その他">その他</button></div><div class="hint">混ざっている色をすべて選択できます。</div><label style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="lifeBowelBlood" style="width:22px;height:22px">血液が混じっている／血液のように見える</label><div class="hint">見た目の記録です。原因の判定ではありません。</div></div></div>
     <div id="lifeHydrationFields" style="display:none"><div class="field"><label>飲み物</label><div class="chip-select" id="hydrationDrinkChips"><div class="c active" data-drink="水">水</div><div class="c" data-drink="お茶">お茶</div><div class="c" data-drink="コーヒー">コーヒー</div><div class="c" data-drink="その他">その他</div></div></div><div class="field"><label>量：<b id="hydrationMlLabel">200 ml</b></label><input type="range" class="pain-slider" id="hydrationSlider" min="0" max="1000" step="10" value="200"><div class="field" style="margin-top:8px"><input type="number" id="hydrationNum" min="0" max="5000" step="10" value="200" inputmode="numeric" style="width:120px"> ml</div></div></div>
     <div id="lifeSleepFields" style="display:none"><div class="hint">寝た時刻と起きた時刻を入力してください。</div><div class="field-row"><div class="field"><label>就寝時刻</label><input type="time" id="lifeSleepStart"></div><div class="field"><label>起床時刻</label><input type="time" id="lifeSleepEnd"></div></div></div>
     <div id="lifeMedicationFields" style="display:none"><div class="field"><label>薬の名前</label><input type="text" id="lifeMedicationName" placeholder="薬の名前"></div><div class="field"><label>服用量（任意）</label><input type="text" id="lifeMedicationDose" placeholder="例：1錠、5mg"></div><div class="hint">薬の内容や量は入力したとおりに記録します。</div></div>
@@ -1957,7 +1963,7 @@ document.getElementById('lifeSave').addEventListener('click',()=>{
   if(type==='睡眠'){const date=document.getElementById('lifeDate').value;const st=document.getElementById('lifeSleepStart').value;const en=document.getElementById('lifeSleepEnd').value;if(!st||!en){alert('就寝時刻と起床時刻を入力してください');return;}rec.startTs=tsFromInputs(date,st);let endDate=date;if(en<st){const d=new Date(rec.startTs);d.setDate(d.getDate()+1);endDate=fmtDateStr(d.getTime());}rec.endTs=tsFromInputs(endDate,en);rec.durationSec=Math.max(0,Math.round((rec.endTs-rec.startTs)/1000));}
   if(type==='入浴'){rec.bathType=document.querySelector('#lifeBathType .c.active')?.dataset.v||'湯船';const st=document.getElementById('lifeBathStart').value;const en=document.getElementById('lifeBathEnd').value;rec.startTs=tsFromInputs(document.getElementById('lifeDate').value,st||document.getElementById('lifeTime').value);if(en){let endDate=document.getElementById('lifeDate').value;if(en<fmtTimeStr(rec.startTs)){const d=new Date(rec.startTs);d.setDate(d.getDate()+1);endDate=fmtDateStr(d.getTime());}rec.endTs=tsFromInputs(endDate,en);rec.durationSec=Math.max(0,Math.round((rec.endTs-rec.startTs)/1000));}}
   if(type==='排尿')rec.color=document.getElementById('lifeColor').value;
-  if(type==='排便'){rec.colorTags=[...document.querySelectorAll('#lifeBowelColorChips .c.active')].map(c=>c.dataset.v);rec.color=rec.colorTags[0]||null;}
+  if(type==='排便'){rec.colorTags=[...document.querySelectorAll('#lifeBowelColorChips .c.active')].map(c=>c.dataset.v);rec.color=rec.colorTags[0]||null;rec.bloodObserved=!!document.getElementById('lifeBowelBlood')?.checked;}
   if(type==='排便'){rec.bowelSelections=bowelSelections.map(x=>({...x}));rec.bowelStates=[...lifestyleSelections.bowelStates];rec.bowelState=rec.bowelSelections.length?rec.bowelSelections.map(x=>x.shapeLabel+'・'+x.amountLabel).join(' ／ '):(rec.bowelStates.join('・')||null);}
   appData.lifestyleEvents.push(rec); saveData(); lifestyleBackdrop.classList.remove('open'); renderLifestyleHistory(); renderTimeline(); renderTrend();
 });
@@ -1966,7 +1972,7 @@ function renderLifestyleHistory(){
   const today=fmtDateStr(Date.now());const total=appData.lifestyleEvents.filter(r=>r.type==='水分補給'&&fmtDateStr(r.startTs)===today).reduce((a,r)=>a+(Number(r.amountMl)||0),0);const totalEl=document.getElementById('hydrationDailyTotal');if(totalEl)totalEl.textContent='今日：'+total+'ml';
   const holder=document.getElementById('lifestyleHistoryList'), rows=[...appData.lifestyleEvents].sort((a,b)=>b.startTs-a.startTs);
   if(!rows.length){holder.innerHTML='<div class="empty">記録はありません</div>';return;}
-  holder.innerHTML=rows.map(r=>{let d=r.type==='お腹の張り'?'張り '+(r.level??0)+'/10':r.type==='食事'?'食事量：'+(r.mealAmount||'記録なし'):r.type==='排便'?'便：'+(Array.isArray(r.bowelSelections)&&r.bowelSelections.length?r.bowelSelections.map(x=>x.shapeLabel+'・'+x.amountLabel).join(' ／ '):((r.bowelStates||[]).join('・')||r.bowelState||'記録なし')):r.type==='排尿'?('排尿時間：'+fmtDur(r.durationSec||0)):r.type==='水分補給'?((r.drink||'水')+' '+(r.amountMl||200)+'ml'):r.type==='服薬'?((r.medicationName||'薬')+(r.medicationDose?' '+r.medicationDose:'')):r.type==='入浴'?((r.bathType||'入浴')+(r.durationSec?' '+fmtDur(r.durationSec):'')):r.type==='睡眠'?'睡眠 '+(r.durationSec?fmtDur(r.durationSec):''):'記録';return `<div class="record-item" data-life-id="${r.id}"><div class="left"><div><div>${r.type} ・ ${d}</div><div class="meta">${fmtDateStr(r.startTs)} ${fmtTimeStr(r.startTs)}${r.colorTags?.length?' ／ 色：'+r.colorTags.join('・'):(r.color?' ／ <span style=\"display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;background:'+r.color+'\"></span>':'')}${r.photoData?' ／ 📷写真あり':''}${r.note?' ／ '+r.note:''}</div></div></div><button class="del-btn" data-life-del="${r.id}">×</button></div>`;}).join('');
+  holder.innerHTML=rows.map(r=>{let d=r.type==='お腹の張り'?'張り '+(r.level??0)+'/10':r.type==='食事'?'食事量：'+(r.mealAmount||'記録なし'):r.type==='排便'?'便：'+(r.bloodObserved?'血液のような見た目あり ／ ':'')+(Array.isArray(r.bowelSelections)&&r.bowelSelections.length?r.bowelSelections.map(x=>x.shapeLabel+'・'+x.amountLabel).join(' ／ '):((r.bowelStates||[]).join('・')||r.bowelState||'記録なし')):r.type==='排尿'?('排尿時間：'+fmtDur(r.durationSec||0)):r.type==='水分補給'?((r.drink||'水')+' '+(r.amountMl||200)+'ml'):r.type==='服薬'?((r.medicationName||'薬')+(r.medicationDose?' '+r.medicationDose:'')):r.type==='入浴'?((r.bathType||'入浴')+(r.durationSec?' '+fmtDur(r.durationSec):'')):r.type==='睡眠'?'睡眠 '+(r.durationSec?fmtDur(r.durationSec):''):'記録';return `<div class="record-item" data-life-id="${r.id}"><div class="left"><div><div>${r.type} ・ ${d}</div><div class="meta">${fmtDateStr(r.startTs)} ${fmtTimeStr(r.startTs)}${r.bloodObserved?' ／ 血液のような見た目あり':''}${r.colorTags?.length?' ／ 色：'+r.colorTags.join('・'):(r.color?' ／ <span style=\"display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;background:'+r.color+'\"></span>':'')}${r.photoData?' ／ 📷写真あり':''}${r.note?' ／ '+r.note:''}</div></div></div><button class="del-btn" data-life-del="${r.id}">×</button></div>`;}).join('');
   holder.querySelectorAll('[data-life-id]').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('[data-life-del]'))return;const id=parseInt(el.dataset.lifeId,10);const r=appData.lifestyleEvents.find(x=>x.id===id);openEditGeneric('lifestyleEvents',id,r?.type||'生活・体調の記録');}));
   holder.querySelectorAll('[data-life-del]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();const id=parseInt(el.dataset.lifeDel,10);if(confirm('この記録を削除しますか？')){appData.lifestyleEvents=appData.lifestyleEvents.filter(x=>x.id!==id);saveData();renderLifestyleHistory();renderTimeline();}}));
 }
@@ -1995,7 +2001,7 @@ function buildTimelineEvents(){
     title: 'おりもの', detail: [r.amount,r.color,(r.textureTags||[]).length?r.textureTags.join('・'):r.state].filter(Boolean).join(' / ') + (r.note?(' ／ '+r.note):''), ref: r
   }));
   appData.lifestyleEvents.forEach(r=>{
-    let detail=r.type==='お腹の張り'?'張り '+(r.level??0)+'/10':r.type==='食事'?'食事量：'+(r.mealAmount||'記録なし'):r.type==='排便'?'便：'+(Array.isArray(r.bowelSelections)&&r.bowelSelections.length?r.bowelSelections.map(x=>x.shapeLabel+'・'+x.amountLabel).join(' ／ '):((r.bowelStates||[]).join('・')||r.bowelState||'記録なし')):r.type==='排尿'?('排尿時間：'+fmtDur(r.durationSec||0)):r.type==='水分補給'?((r.drink||'水')+' '+(r.amountMl||200)+'ml'):r.type==='服薬'?((r.medicationName||'薬')+(r.medicationDose?' '+r.medicationDose:'')):r.type==='入浴'?((r.bathType||'入浴')+(r.durationSec?' '+fmtDur(r.durationSec):'')):r.type==='睡眠'?'睡眠 '+(r.durationSec?fmtDur(r.durationSec):''):'記録';
+    let detail=r.type==='お腹の張り'?'張り '+(r.level??0)+'/10':r.type==='食事'?'食事量：'+(r.mealAmount||'記録なし'):r.type==='排便'?'便：'+(r.bloodObserved?'血液のような見た目あり ／ ':'')+(Array.isArray(r.bowelSelections)&&r.bowelSelections.length?r.bowelSelections.map(x=>x.shapeLabel+'・'+x.amountLabel).join(' ／ '):((r.bowelStates||[]).join('・')||r.bowelState||'記録なし')):r.type==='排尿'?('排尿時間：'+fmtDur(r.durationSec||0)):r.type==='水分補給'?((r.drink||'水')+' '+(r.amountMl||200)+'ml'):r.type==='服薬'?((r.medicationName||'薬')+(r.medicationDose?' '+r.medicationDose:'')):r.type==='入浴'?((r.bathType||'入浴')+(r.durationSec?' '+fmtDur(r.durationSec):'')):r.type==='睡眠'?'睡眠 '+(r.durationSec?fmtDur(r.durationSec):''):'記録';
     if(r.note)detail+=(detail?' ／ ':'')+r.note;
     items.push({kind:'lifestyle',startTs:r.startTs,endTs:r.endTs,icon:r.type==='食事'?'🍚':r.type==='排尿'?'🚽':r.type==='排便'?'💩':r.type==='睡眠'?'😴':r.type==='服薬'?'💊':r.type==='入浴'?'🛁':'〰️',iconBg:'#0f766e',title:r.type,detail,ref:r});
   });
@@ -2284,13 +2290,14 @@ function openEditGeneric(arrKey,id,title){
   if(arrKey==='lifestyleEvents'){
     document.getElementById('editTitle').textContent=title+'を編集';
     const bs=Array.isArray(r.bowelStates)?r.bowelStates:(r.bowelState?String(r.bowelState).split('・').filter(Boolean):[]);
-    document.getElementById('editFields').innerHTML=`<div class="field"><label>種類</label><select id="ef_lifeType">${['排尿','排便','食事','水分補給','睡眠','服薬','入浴','お腹の張り',...(r.type&&!['排尿','排便','食事','水分補給','睡眠','服薬','入浴','お腹の張り'].includes(r.type)?[r.type]:[])].map(v=>`<option value="${v}" ${r.type===v?'selected':''}>${v}</option>`).join('')}</select></div><div class="field-row"><div class="field"><label>開始日</label><input type="date" id="ef_sdate" value="${fmtDateStr(r.startTs)}"></div><div class="field"><label>開始時刻</label><input type="time" id="ef_stime" step="1" value="${new Date(r.startTs).toTimeString().slice(0,8)}"></div></div><div class="field-row" id="ef_urineEndRow"><div class="field"><label>終了日</label><input type="date" id="ef_edate" value="${r.endTs?fmtDateStr(r.endTs):fmtDateStr(r.startTs)}"></div><div class="field"><label>終了時刻</label><input type="time" id="ef_etime" step="1" value="${new Date(r.endTs||r.startTs).toTimeString().slice(0,8)}"></div></div><div class="field" id="ef_lifeLevelWrap" style="display:${r.type==='お腹の張り'?'':'none'}"><label>お腹の張り（0〜10）</label><input type="range" class="pain-slider" id="ef_lifeLevel" min="0" max="10" value="${r.level??0}"><div id="ef_lifeLevelLabel" style="text-align:center;font-weight:700">${r.level??0}/10</div></div><div class="field" id="ef_lifeMealWrap"><label>食事量</label><select id="ef_lifeMeal">${mealAmountLabels.map(v=>`<option ${r.mealAmount===v?'selected':''}>${v}</option>`).join('')}</select></div><div class="field" id="ef_lifeBowelWrap"><label>便の見た目（複数選択可）</label><div class="bowel-matrix-wrap"><div class="bowel-grid" id="efLifeBowelMatrix"></div><div class="bowel-matrix-value" id="efLifeBowelValue">必要な組み合わせを選択してください</div></div><div class="bleeding-matrix-hint">形が変わった場合は、当てはまるものを複数選択できます。⑥は泥状、⑦は水のような便です。</div></div><div class="field"><label>内容・気づいたこと</label><textarea id="ef_note">${r.note||''}</textarea></div>`;
+    document.getElementById('editFields').innerHTML=`<div class="field"><label>種類</label><select id="ef_lifeType">${['排尿','排便','食事','水分補給','睡眠','服薬','入浴','お腹の張り',...(r.type&&!['排尿','排便','食事','水分補給','睡眠','服薬','入浴','お腹の張り'].includes(r.type)?[r.type]:[])].map(v=>`<option value="${v}" ${r.type===v?'selected':''}>${v}</option>`).join('')}</select></div><div class="field-row"><div class="field"><label>開始日</label><input type="date" id="ef_sdate" value="${fmtDateStr(r.startTs)}"></div><div class="field"><label>開始時刻</label><input type="time" id="ef_stime" step="1" value="${new Date(r.startTs).toTimeString().slice(0,8)}"></div></div><div class="field-row" id="ef_urineEndRow"><div class="field"><label>終了日</label><input type="date" id="ef_edate" value="${r.endTs?fmtDateStr(r.endTs):fmtDateStr(r.startTs)}"></div><div class="field"><label>終了時刻</label><input type="time" id="ef_etime" step="1" value="${new Date(r.endTs||r.startTs).toTimeString().slice(0,8)}"></div></div><div class="field" id="ef_lifeLevelWrap" style="display:${r.type==='お腹の張り'?'':'none'}"><label>お腹の張り（0〜10）</label><input type="range" class="pain-slider" id="ef_lifeLevel" min="0" max="10" value="${r.level??0}"><div id="ef_lifeLevelLabel" style="text-align:center;font-weight:700">${r.level??0}/10</div></div><div class="field" id="ef_lifeMealWrap"><label>食事量</label><select id="ef_lifeMeal">${mealAmountLabels.map(v=>`<option ${r.mealAmount===v?'selected':''}>${v}</option>`).join('')}</select></div><div class="field" id="ef_lifeMedicationWrap"><label>薬の名前</label><input id="ef_lifeMedicationName" value="${r.medicationName||''}"><label>服用量</label><input id="ef_lifeMedicationDose" value="${r.medicationDose||''}"></div><div class="field" id="ef_lifeWaterWrap"><label>飲み物・量</label><select id="ef_lifeDrink"><option>水</option><option>お茶</option><option>コーヒー</option><option>その他</option></select><input type="number" id="ef_lifeWater" min="0" max="5000" value="${r.amountMl??200}"> ml</div><div class="field" id="ef_lifeBowelWrap"><label>便の見た目（複数選択可）</label><div class="bowel-matrix-wrap"><div class="bowel-grid" id="efLifeBowelMatrix"></div><div class="bowel-matrix-value" id="efLifeBowelValue">必要な組み合わせを選択してください</div></div><div class="bleeding-matrix-hint">形が変わった場合は、当てはまるものを複数選択できます。⑥は泥状、⑦は水のような便です。</div><div class="chip-select multi-select" id="efLifeBowelColors"></div><label><input type="checkbox" id="efLifeBowelBlood"> 血液が混じっている／血液のように見える</label></div><div class="field"><label>内容・気づいたこと</label><textarea id="ef_note">${r.note||''}</textarea></div>`;
     editBackdrop.classList.add('open');
-    const sync=()=>{const t=document.getElementById('ef_lifeType').value;document.getElementById('ef_lifeLevelWrap').style.display=t==='お腹の張り'?'':'none';document.getElementById('ef_lifeMealWrap').style.display=t==='食事'?'':'none';document.getElementById('ef_lifeBowelWrap').style.display=t==='排便'?'':'none';document.getElementById('ef_urineEndRow').style.display=t==='排尿'?'':'none';};
+    const sync=()=>{const t=document.getElementById('ef_lifeType').value;document.getElementById('ef_lifeLevelWrap').style.display=t==='お腹の張り'?'':'none';document.getElementById('ef_lifeMealWrap').style.display=t==='食事'?'':'none';document.getElementById('ef_lifeBowelWrap').style.display=t==='排便'?'':'none';document.getElementById('ef_lifeMedicationWrap').style.display=t==='服薬'?'':'none';document.getElementById('ef_lifeWaterWrap').style.display=t==='水分補給'?'':'none';document.getElementById('ef_urineEndRow').style.display=t==='排尿'?'':'none';};
     sync();
     document.getElementById('ef_lifeType').addEventListener('change',sync);
     document.getElementById('ef_lifeLevel').addEventListener('input',e=>document.getElementById('ef_lifeLevelLabel').textContent=e.target.value+'/10');
     let editBowelSelections=normalizeBowelSelections(r).map(x=>({...x})); renderBowelMatrix('efLifeBowelMatrix','efLifeBowelValue',editBowelSelections);
+    const editColorOptions=['黄褐色','茶色','濃い茶色','緑','赤','暗赤色','黒','白っぽい','その他'];const editColors=Array.isArray(r.colorTags)?r.colorTags:(r.color?[r.color]:[]);document.getElementById('efLifeBowelColors').innerHTML=editColorOptions.map(v=>`<button type="button" class="c ${editColors.includes(v)?'active':''}" data-v="${v}">${v}</button>`).join('');document.querySelectorAll('#efLifeBowelColors .c').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('active')));document.getElementById('efLifeBowelBlood').checked=!!r.bloodObserved;document.getElementById('ef_lifeDrink').value=r.drink||'水';
     document.getElementById('editSave').onclick=()=>{
       const st=tsFromInputs(document.getElementById('ef_sdate').value,document.getElementById('ef_stime').value); if(!Number.isFinite(st)){alert('開始日時を確認してください');return;}
       const t=document.getElementById('ef_lifeType').value; let en=st;
@@ -2299,6 +2306,10 @@ function openEditGeneric(arrKey,id,title){
       const unchangedUrineInterval=previousType==='排尿'&&t==='排尿'&&document.getElementById('ef_sdate').value===fmtDateStr(r.startTs)&&document.getElementById('ef_stime').value===fmtTimeStr(r.startTs)&&document.getElementById('ef_edate').value===fmtDateStr(r.endTs||r.startTs)&&document.getElementById('ef_etime').value===new Date(r.endTs||r.startTs).toTimeString().slice(0,8);
       r.type=t;r.startTs=st;if(t==='排尿'){r.endTs=en;r.durationSec=unchangedUrineInterval?previousDuration:Math.max(1,Math.round((en-st)/1000));}else if(previousType==='排尿'){delete r.endTs;delete r.durationSec;}if(t==='お腹の張り')r.level=parseInt(document.getElementById('ef_lifeLevel').value,10)||0;else if(previousType==='お腹の張り')delete r.level;if(t==='食事')r.mealAmount=document.getElementById('ef_lifeMeal').value;else if(previousType==='食事')delete r.mealAmount;
       if(t==='排便'){r.bowelSelections=editBowelSelections.map(x=>({...x}));r.bowelStates=[];r.bowelState=r.bowelSelections.length?r.bowelSelections.map(x=>x.shapeLabel+'・'+x.amountLabel).join(' ／ '):(bs.join('・')||null);}else if(previousType==='排便'){delete r.bowelSelections;delete r.bowelStates;delete r.bowelState;}
+      if(t==='食事')r.mealAmount=document.getElementById('ef_lifeMeal').value;
+      if(t==='服薬'){r.medicationName=document.getElementById('ef_lifeMedicationName').value.trim();r.medicationDose=document.getElementById('ef_lifeMedicationDose').value.trim();if(!r.medicationName){alert('薬の名前を入力してください');return;}}
+      if(t==='水分補給'){r.amountMl=Math.max(0,Number(document.getElementById('ef_lifeWater').value)||0);r.drink=document.getElementById('ef_lifeDrink').value;}
+      if(t==='排便'){r.colorTags=[...document.querySelectorAll('#efLifeBowelColors .c.active')].map(c=>c.dataset.v);r.color=r.colorTags[0]||null;r.bloodObserved=!!document.getElementById('efLifeBowelBlood').checked;}
       r.note=document.getElementById('ef_note').value.trim();saveData();closeEdit();renderLifestyleHistory();renderTimeline();
     };
     document.getElementById('editDelete').onclick=()=>{if(!confirm('この記録を削除しますか？'))return;appData.lifestyleEvents=appData.lifestyleEvents.filter(x=>x.id!==id);saveData();closeEdit();renderLifestyleHistory();renderTimeline();};return;
@@ -2436,6 +2447,7 @@ function renderChart(){
    診察用サマリー画面
 ========================================================= */
 let selectedDoctorDays = 90;
+let selectedDoctorCustomRange = null;
 
 // 提出タブの期間選択（診察用シート側には選択UIを置かず、ここで決めた期間をそのまま渡す）
 document.querySelectorAll('#tabDoctorPeriodButtons button').forEach(btn => {
@@ -2443,12 +2455,27 @@ document.querySelectorAll('#tabDoctorPeriodButtons button').forEach(btn => {
     document.querySelectorAll('#tabDoctorPeriodButtons button').forEach(x => x.classList.remove('active'));
     btn.classList.add('active');
     selectedDoctorDays = parseInt(btn.getAttribute('data-doctor-days'), 10);
+    selectedDoctorCustomRange = null;
+    const customNote = document.getElementById('tabDoctorCustomNote'); if(customNote) customNote.textContent = '';
     const note = document.getElementById('tabDoctorRangeNote');
     if(note) note.textContent = '選択中：' + btn.textContent + '（記録データは変更されません）';
   });
 });
+document.getElementById('doctorCustomApply')?.addEventListener('click',()=>{
+  const a=document.getElementById('doctorCustomStart').value,b=document.getElementById('doctorCustomEnd').value;
+  const note=document.getElementById('tabDoctorCustomNote');
+  if(!a||!b||a>b){if(note)note.textContent='開始日と終了日を正しく入力してください。';return;}
+  selectedDoctorCustomRange={start:new Date(a+'T00:00:00').getTime(),end:new Date(b+'T23:59:59').getTime()};
+  document.querySelectorAll('#tabDoctorPeriodButtons button').forEach(x=>x.classList.remove('active'));
+  if(note)note.textContent='選択中：'+a+' 〜 '+b+'（記録データは変更されません）';
+});
 
 document.getElementById('doctorViewBtn').addEventListener('click', () => {
+  if(selectedDoctorCustomRange){
+    const a=document.getElementById('doctorCustomStart')?.value, b=document.getElementById('doctorCustomEnd')?.value;
+    if(!a||!b||a>b){alert('期間指定の日付を確認してください。開始日は終了日以前にしてください。');return;}
+    selectedDoctorCustomRange={start:new Date(a+'T00:00:00').getTime(),end:new Date(b+'T23:59:59').getTime()};
+  }
   const win = window.open('', '_blank');
 
   const painByRegion = {};
@@ -2507,7 +2534,8 @@ document.getElementById('doctorViewBtn').addEventListener('click', () => {
   // ---- 要約と全記録の時間軸（記録がある点だけを表示。空白＝記録なし） ----
   const _all = buildTimelineEvents();
   let _end = _all.length?Math.max(..._all.map(x=>x.startTs)):Date.now();
-  let _start = selectedDoctorDays? _end-selectedDoctorDays*86400000 : (_all.length?Math.min(..._all.map(x=>x.startTs)):_end-86400000);
+  let _start = selectedDoctorCustomRange ? selectedDoctorCustomRange.start : (selectedDoctorDays? _end-selectedDoctorDays*86400000 : (_all.length?Math.min(..._all.map(x=>x.startTs)):_end-86400000));
+  if(selectedDoctorCustomRange) _end=selectedDoctorCustomRange.end;
   const _items = _all.filter(x=>x.startTs>=_start&&x.startTs<=_end).sort((a,b)=>a.startTs-b.startTs);
   const _laneName = x=> x.kind==='pain'?'痛み':(x.kind==='nopain'?'痛みなし（明記）':x.title);
   const _lanes = {}; _items.forEach(x=>{ const n=_laneName(x); (_lanes[n]=_lanes[n]||{items:[],icon:x.icon,kind:x.kind}).items.push(x); });
@@ -2614,12 +2642,14 @@ document.getElementById('doctorViewBtn').addEventListener('click', () => {
     const bleedingData = ${bleedingDataJson};
     const regionColors = ${regionColorJson};
     const doctorDays = ${selectedDoctorDays};
+    const doctorCustomRange = ${JSON.stringify(selectedDoctorCustomRange)};
     function doctorRange(){
       const allTs = [
         ...painData.map(r => Number(r.startTs)).filter(Number.isFinite),
         ...bleedingData.map(r => Number(r.startTs)).filter(Number.isFinite)
       ];
       const end = allTs.length ? Math.max(...allTs) : Date.now();
+      if(doctorCustomRange) return {start:doctorCustomRange.start,end:doctorCustomRange.end,days:Math.max(1,(doctorCustomRange.end-doctorCustomRange.start)/86400000)};
       if (doctorDays === 0) {
         const start = allTs.length ? Math.min(...allTs) : end - 86400000;
         return {start, end, days: Math.max(1, (end-start)/86400000)};
