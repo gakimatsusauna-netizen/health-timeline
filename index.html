@@ -430,7 +430,13 @@ canvas.pure-canvas { width: 100%; height: 100%; display: block; }
         <button class="primary-btn" id="quickUrineEnd" disabled>排尿終了</button>
       </div>
       <div id="quickUrineStatus" class="hint" style="margin:8px 0 0">排尿の記録は開始前です</div>
-      <div style="margin-top:14px;font-weight:700;font-size:13px">水分補給（タップで即記録・水）</div>
+      <div style="margin-top:14px;font-weight:700;font-size:13px">水分補給（量を調整してすぐ記録）</div>
+      <div class="field" style="margin-top:8px">
+        <label for="quickWaterSlider">水分量：<b id="quickWaterLabel">200 ml</b></label>
+        <input type="range" class="pain-slider" id="quickWaterSlider" min="0" max="1000" step="10" value="200" aria-label="水分量（ミリリットル）">
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px"><input type="number" id="quickWaterNum" min="0" max="5000" step="10" value="200" inputmode="numeric" aria-label="水分量を数値で入力" style="width:120px"> ml</div>
+      </div>
+      <button class="primary-btn" id="quickWaterSave" type="button" style="width:100%;margin-top:8px">この量を記録</button>
       <div class="quick-actions" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">
         <button class="ghost-btn" data-quick-water="100">100ml</button>
         <button class="ghost-btn" data-quick-water="200">200ml</button>
@@ -1907,11 +1913,19 @@ document.getElementById('quickUrineEnd').addEventListener('click',()=>{
   appData.lifestyleEvents.push({id:appData.nextId++,type:'排尿',startTs:urinationStartTs,endTs,durationSec:Math.max(0,Math.round((endTs-urinationStartTs)/1000)),color:'#e9c33a',recordedAt:Date.now(),entryType:'manual',note:''});
   urinationStartTs=null;appData.activeUrination=null;saveData();syncQuickUrine();renderLifestyleHistory();renderTimeline();renderTrend();
 });
-document.querySelectorAll('[data-quick-water]').forEach(btn=>btn.addEventListener('click',()=>{
-  const ml=Number(btn.dataset.quickWater),ts=Date.now();
+function saveQuickWater(ml){
+  ml=Math.max(0,Math.min(5000,Math.round(Number(ml)||0)));
+  const ts=Date.now();
   appData.lifestyleEvents.push({id:appData.nextId++,type:'水分補給',startTs:ts,endTs:ts,amountMl:ml,drink:'水',recordedAt:ts,entryType:'manual',note:''});
   saveData();renderLifestyleHistory();renderTimeline();renderTrend();
-}));
+  const label=document.getElementById('quickWaterLabel'); if(label)label.textContent=ml+' ml';
+}
+const quickWaterSlider=document.getElementById('quickWaterSlider'),quickWaterNum=document.getElementById('quickWaterNum');
+function syncQuickWater(value){const ml=Math.max(0,Math.min(5000,Math.round(Number(value)||0)));if(quickWaterSlider)quickWaterSlider.value=Math.min(1000,ml);if(quickWaterNum)quickWaterNum.value=ml;const label=document.getElementById('quickWaterLabel');if(label)label.textContent=ml+' ml';}
+quickWaterSlider?.addEventListener('input',e=>syncQuickWater(e.target.value));
+quickWaterNum?.addEventListener('input',e=>syncQuickWater(e.target.value));
+document.getElementById('quickWaterSave')?.addEventListener('click',()=>saveQuickWater(quickWaterNum?.value));
+document.querySelectorAll('[data-quick-water]').forEach(btn=>btn.addEventListener('click',()=>{syncQuickWater(btn.dataset.quickWater);saveQuickWater(btn.dataset.quickWater);}));
 
 document.getElementById('lifeCancel').addEventListener('click',()=>lifestyleBackdrop.classList.remove('open'));
 document.querySelectorAll('#lifeTypeChips .c').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#lifeTypeChips .c').forEach(x=>x.classList.remove('active'));c.classList.add('active');lifestyleSelections.type=c.dataset.v;updateLifestyleFields();}));
@@ -2281,7 +2295,9 @@ function openEditGeneric(arrKey,id,title){
       const st=tsFromInputs(document.getElementById('ef_sdate').value,document.getElementById('ef_stime').value); if(!Number.isFinite(st)){alert('開始日時を確認してください');return;}
       const t=document.getElementById('ef_lifeType').value; let en=st;
       if(t==='排尿'){en=tsFromInputs(document.getElementById('ef_edate').value,document.getElementById('ef_etime').value);if(!Number.isFinite(en)||en<st){alert('終了日時を確認してください');return;}}
-      const previousType=r.type;const previousDuration=Number(r.durationSec)||0;r.type=t;r.startTs=st;if(t==='排尿'){r.endTs=en; r.durationSec=Math.max(0,Math.round((en-st)/1000));}else if(previousType==='排尿'){delete r.endTs;delete r.durationSec;}if(t==='お腹の張り')r.level=parseInt(document.getElementById('ef_lifeLevel').value,10)||0;else if(previousType==='お腹の張り')delete r.level;if(t==='食事')r.mealAmount=document.getElementById('ef_lifeMeal').value;else if(previousType==='食事')delete r.mealAmount;
+      const previousType=r.type;const previousDuration=Number(r.durationSec)||0;
+      const unchangedUrineInterval=previousType==='排尿'&&t==='排尿'&&document.getElementById('ef_sdate').value===fmtDateStr(r.startTs)&&document.getElementById('ef_stime').value===fmtTimeStr(r.startTs)&&document.getElementById('ef_edate').value===fmtDateStr(r.endTs||r.startTs)&&document.getElementById('ef_etime').value===new Date(r.endTs||r.startTs).toTimeString().slice(0,8);
+      r.type=t;r.startTs=st;if(t==='排尿'){r.endTs=en;r.durationSec=unchangedUrineInterval?previousDuration:Math.max(1,Math.round((en-st)/1000));}else if(previousType==='排尿'){delete r.endTs;delete r.durationSec;}if(t==='お腹の張り')r.level=parseInt(document.getElementById('ef_lifeLevel').value,10)||0;else if(previousType==='お腹の張り')delete r.level;if(t==='食事')r.mealAmount=document.getElementById('ef_lifeMeal').value;else if(previousType==='食事')delete r.mealAmount;
       if(t==='排便'){r.bowelSelections=editBowelSelections.map(x=>({...x}));r.bowelStates=[];r.bowelState=r.bowelSelections.length?r.bowelSelections.map(x=>x.shapeLabel+'・'+x.amountLabel).join(' ／ '):(bs.join('・')||null);}else if(previousType==='排便'){delete r.bowelSelections;delete r.bowelStates;delete r.bowelState;}
       r.note=document.getElementById('ef_note').value.trim();saveData();closeEdit();renderLifestyleHistory();renderTimeline();
     };
