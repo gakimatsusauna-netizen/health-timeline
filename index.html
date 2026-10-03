@@ -347,14 +347,16 @@ canvas.pure-canvas { width: 100%; height: 100%; display: block; }
 .tab-order-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}.tab-order-row span{flex:1;font-size:13px}.tab-order-row button{padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--card2);color:var(--text)}
  .build-note { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--muted); font-size: 12px; line-height: 1.6; }
 .build-note strong { color: var(--success); }
+.symptom-quick-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.symptom-quick-choice{min-height:56px;padding:10px 8px;border:1px solid var(--border);border-radius:12px;background:var(--card2);color:var(--text);font-weight:700;font-size:15px;cursor:pointer}.symptom-quick-choice:active{transform:scale(.98)}
 </style>
 </head>
 <body>
 <div class="app">
   <h1>症状の記録</h1>
-<div class="build-note" role="note" aria-label="この版に含まれる機能">
-  <strong>統合版</strong>：症状・排尿・排便・出血・おりもの・食事写真・水分・睡眠・服薬・入浴の記録、
-  トレンド表示、身体タイムライン、診察用サマリー、CSVの書き出し／取り込みに対応。
+<div class="card" id="topPrivacyNotice" style="margin-bottom:14px">
+  <h2>プライバシー</h2>
+  <div class="hint">このアプリのデータはこの端末のブラウザ内にのみ保存されます。</div>
+  <button class="ghost-btn" id="showPrivacyBtnTop">プライバシーの注意を表示</button>
 </div>
 
   <div id="candidateHolder"></div>
@@ -396,7 +398,8 @@ canvas.pure-canvas { width: 100%; height: 100%; display: block; }
     <div class="card">
       <h2>症状を記録</h2>
       <div class="hint">だるさ・吐き気・お腹の張りなどは、強さを0〜10のバーで記録し、途中の変化と終了時刻まで残せます。過去の記録では終了日時も入力できます。発熱は体温を記録します。</div>
-      <button class="primary-btn" id="openSymptomModal">＋ 症状を記録</button>
+      <div class="hint" style="margin-top:10px">症状を選ぶと、程度や詳細を入力できます。</div>
+      <div id="symptomQuickChoices" class="symptom-quick-choices"></div>
     </div>
     <div id="activeSymptomPanel"></div>
     <details class="history-details">
@@ -408,7 +411,6 @@ canvas.pure-canvas { width: 100%; height: 100%; display: block; }
   <!-- タブ3: 月経・出血・おりもの -->
   <div id="tab-menstrual" class="tab-content">
     <div class="card"><h2>月経・出血</h2><div class="hint">開始・出血・終了を別々に記録できます。出血の量は時間に沿ってグラフ化できます。</div><button class="primary-btn" style="background:var(--pink)" id="openMenstrualModal">＋ 月経・出血を記録</button></div>
-    <div class="card"><h2>出血量の推移</h2><div class="hint">「出血」として記録した量だけを時系列で表示します。</div><div id="menstrualChartWrap" style="height:230px"><canvas id="menstrualChart" class="pure-canvas"></canvas></div><div id="menstrualChartEmpty" class="empty" style="display:none">出血量の記録が増えるとグラフが表示されます</div></div>
     <details class="history-details">
       <summary>過去の月経・出血の記録を見る</summary>
       <div class="history-body"><div id="menstrualHistoryList" class="records-list"><div class="empty">記録はありません</div></div></div>
@@ -418,6 +420,7 @@ canvas.pure-canvas { width: 100%; height: 100%; display: block; }
         <div class="history-body"><div id="dischargeHistoryList" class="records-list"><div class="empty">記録はありません</div></div></div>
       </details>
     </div>
+    <div class="card"><h2>出血量の推移</h2><div class="hint">「出血」として記録した量だけを時系列で表示します。</div><div id="menstrualChartWrap" style="height:230px"><canvas id="menstrualChart" class="pure-canvas"></canvas></div><div id="menstrualChartEmpty" class="empty" style="display:none">出血量の記録が増えるとグラフが表示されます</div></div>
   </div>
 
   <!-- タブ4: 生活・体調 -->
@@ -555,12 +558,6 @@ canvas.pure-canvas { width: 100%; height: 100%; display: block; }
       <h2>データを書き出す</h2>
       <div class="hint">記録されているすべてのデータをCSVファイルとして、この端末内で生成します。外部サーバーへは送信されません。書き出したファイルには症状などの個人情報が含まれるため、取り扱いにご注意ください。</div>
       <button class="primary-btn" id="exportCsvBtn">⬇ データを書き出す（CSV）</button>
-    </div>
-    <div class="card">
-      <h2>プライバシー</h2>
-
-      <div class="hint">このアプリのデータはこの端末のブラウザ内にのみ保存されます。</div>
-      <button class="ghost-btn" id="showPrivacyBtn">プライバシーの注意を表示</button>
     </div>
     <div class="card">
       <h2>CSVから取り込む</h2>
@@ -1444,6 +1441,16 @@ function renderSymptomChips(){
   });
 }
 renderSymptomChips();
+// タブ上に症状選択肢を常時表示し、選択後に詳細入力へ進む
+(function renderSymptomQuickChoices(){
+  const host=document.getElementById('symptomQuickChoices'); if(!host)return;
+  host.innerHTML=GENERAL_SYMPTOMS.map(sym=>`<button type="button" class="symptom-quick-choice" data-symptom-key="${sym.key}">${sym.label}</button>`).join('');
+  host.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+    openSymptomModal();
+    const chip=[...document.querySelectorAll('#symptomChipGrid .symptom-chip')].find(x=>x.dataset.key===btn.dataset.symptomKey);
+    if(chip) chip.click();
+  }));
+})();
 
 let symptomLogMode = 'now';
 
@@ -1491,7 +1498,7 @@ function openSymptomModal(){
   resetSymptomModal();
   symptomBackdrop.classList.add('open');
 }
-document.getElementById('openSymptomModal').addEventListener('click', openSymptomModal);
+
 document.getElementById('sCancel').addEventListener('click', () => symptomBackdrop.classList.remove('open'));
 document.getElementById('sShowHistoryTime').addEventListener('click', () => { symptomLogMode='history'; updateSymptomLogMode(); });
 document.getElementById('sBackToNow').addEventListener('click', () => { symptomLogMode='now'; updateSymptomLogMode(); });
@@ -2527,6 +2534,7 @@ document.getElementById('doctorViewBtn').addEventListener('click', () => {
 
   const chartDataJson = JSON.stringify(appData.painRecords);
   const bleedingDataJson = JSON.stringify(appData.menstrualEvents.filter(r=>r.type==='出血'));
+  const urineDataJson = JSON.stringify(appData.lifestyleEvents.filter(r=>r.type==='排尿'));
   const regionColorMap = {}; REGIONS.forEach(r => regionColorMap[r.key] = r.color);
   const regionColorJson = JSON.stringify(regionColorMap);
 
@@ -2601,15 +2609,13 @@ document.getElementById('doctorViewBtn').addEventListener('click', () => {
   <h1><span>🩺 症状経過サマリー</span><span style="font-size:12px;font-weight:normal;color:#64748b;">出力日時: ${new Date().toLocaleString('ja-JP')}</span></h1>
 
   ${summaryHtml}
-  <h2>1. 痛み・出血の経過（同じ時間軸／尺度は別）</h2>
+  <h2>1. 痛み・出血・排尿の経過</h2>
   <div class="doctor-range-note" id="doctorRangeNote"></div>
   <div class="chart-box" style="height:auto;">
-    <div class="doctor-dual-chart">
-      <div class="doctor-chart-panel"><div class="doctor-chart-title">痛み（0〜10）</div><div id="docPainSvg" class="doctor-chart-svg"></div></div>
-      <div class="doctor-chart-panel"><div class="doctor-chart-title">出血量（少ない → 多い）</div><div id="docBleedingSvg" class="doctor-chart-svg"></div></div>
-    </div>
+    <div class="doctor-chart-title">同じ時間軸での推移（0〜10目盛り）</div>
+    <div id="docCombinedSvg" class="doctor-chart-svg"></div>
   </div>
-  <p style="font-size:11px;color:#64748b;margin-top:6px;">横軸は共通の日時です。空白は記録がないことを示し、症状がなかったことを意味しません。痛みと出血量は別の尺度で表示しています。出血の点をタップすると、量・質・色を確認できます。</p>
+  <p style="font-size:11px;color:#64748b;margin-top:6px;">青＝痛み、赤＝出血量、黄＝排尿回数の目安（6時間ごとの件数）。空白は記録がないことを示し、症状がなかったことを意味しません。線は記録された値の間だけを結び、記録のない区間は補完しません。出血量は少ない〜多いを0〜10の目盛りに換算して表示しています。</p>
 
   <details class="detail-records">
     <summary>詳細記録を確認する（必要な場合のみ展開）</summary>
@@ -2640,6 +2646,7 @@ document.getElementById('doctorViewBtn').addEventListener('click', () => {
   <script>
     const painData = ${chartDataJson};
     const bleedingData = ${bleedingDataJson};
+    const urineData = ${urineDataJson};
     const regionColors = ${regionColorJson};
     const doctorDays = ${selectedDoctorDays};
     const doctorCustomRange = ${JSON.stringify(selectedDoctorCustomRange)};
@@ -2685,47 +2692,41 @@ document.getElementById('doctorViewBtn').addEventListener('click', () => {
         ctx.fillText(label,x,H-padB+6); lastLabel=label;}
     }
     function escSvg(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-    function svgShell(w,h,inner){return \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 \${w} \${h}" width="100%" height="190" role="img">\${inner}</svg>\`;}
+    function svgShell(w,h,inner){return \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 \${w} \${h}" width="100%" height="\${h}" role="img">\${inner}</svg>\`;}
     function xLabel(ts,spanDays){const d=new Date(ts);if(spanDays<=7){return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}return spanDays<=365?((d.getMonth()+1)+'/'+d.getDate()):((d.getFullYear()+'/'+(d.getMonth()+1)));}
     function renderDoctorCharts(){
-      const range=doctorRange();
-      const painHolder=document.getElementById('docPainSvg'),bleedHolder=document.getElementById('docBleedingSvg');
-      if(!range){
-        if(painHolder)painHolder.innerHTML='<div style="height:190px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:13px">痛みの記録はありません</div>';
-        if(bleedHolder)bleedHolder.innerHTML='<div style="height:190px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:13px">出血の記録はありません</div>';
-        return;
+      const range=doctorRange(), holder=document.getElementById('docCombinedSvg');
+      if(!holder)return;
+      if(!range){holder.innerHTML='<div style="height:210px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:13px">この期間の記録はありません</div>';return;}
+      const painVisible=painData.filter(r=>(Number(r.endTs)||Number(r.startTs))>=range.start&&Number(r.startTs)<=range.end).sort((a,b)=>a.startTs-b.startTs);
+      const bleedVisible=bleedingData.filter(r=>Number(r.startTs)>=range.start&&Number(r.startTs)<=range.end).sort((a,b)=>a.startTs-b.startTs);
+      const urineVisible=urineData.filter(r=>Number(r.startTs)>=range.start&&Number(r.startTs)<=range.end).sort((a,b)=>a.startTs-b.startTs);
+      const note=document.getElementById('doctorRangeNote');if(note)note.textContent='表示：'+new Date(range.start).toLocaleDateString('ja-JP')+' 〜 '+new Date(range.end).toLocaleDateString('ja-JP')+'　｜　空白＝記録なし';
+      const W=900,H=300,padL=48,padR=18,padT=20,padB=48,cw=W-padL-padR,ch=H-padT-padB;
+      const min=range.start,max=Math.max(range.end,range.start+3600000),span=max-min;
+      const X=t=>padL+(t-min)/span*cw,Y=v=>padT+ch-(Math.max(0,Math.min(10,v))/10)*ch;
+      let svg='';
+      for(let v=0;v<=10;v+=2){const y=Y(v);svg+=\`<line x1="\${padL}" y1="\${y}" x2="\${W-padR}" y2="\${y}" stroke="#d1d5db"/><text x="\${padL-9}" y="\${y+4}" text-anchor="end" font-size="12" fill="#334155">\${v}</text>\`;}
+      const steps=range.days<=1?8:range.days<=3?6:4;
+      for(let i=0;i<=steps;i++){const t=min+span*i/steps,x=X(t),d=new Date(t),label=range.days<=3?\`\${d.getMonth()+1}/\${d.getDate()} \${String(d.getHours()).padStart(2,'0')}:\${String(d.getMinutes()).padStart(2,'0')}\`:\`\${d.getMonth()+1}/\${d.getDate()}\`;svg+=\`<line x1="\${x}" y1="\${padT}" x2="\${x}" y2="\${padT+ch}" stroke="#e5e7eb"/><text x="\${x}" y="\${H-20}" text-anchor="middle" font-size="11" fill="#334155">\${escSvg(label)}</text>\`;}
+      function drawSeries(points,color,maxGap,connect=true){
+        if(!points.length)return;points.sort((a,b)=>a.t-b.t);let prev=null;
+        points.forEach(pt=>{const x=X(pt.t),y=Y(pt.v);if(connect&&prev&&pt.t-prev.t<=maxGap)svg+=\`<line x1="\${X(prev.t)}" y1="\${Y(prev.v)}" x2="\${x}" y2="\${y}" stroke="\${color}" stroke-width="3" stroke-linejoin="round"/>\`;svg+=\`<circle cx="\${x}" cy="\${y}" r="3.5" fill="\${color}"><title>\${escSvg(new Date(pt.t).toLocaleString('ja-JP'))}：\${pt.v}</title></circle>\`;prev=pt;});
       }
-      const painVisible=painData.filter(r=>(Number(r.endTs)||Number(r.startTs))>=range.start&&Number(r.startTs)<=range.end);
-      const bleedVisible=bleedingData.filter(r=>Number(r.startTs)>=range.start&&Number(r.startTs)<=range.end);
-      const note=document.getElementById('doctorRangeNote'); if(note){note.textContent='表示：'+new Date(range.start).toLocaleDateString('ja-JP')+' 〜 '+new Date(range.end).toLocaleDateString('ja-JP')+'　｜　空白＝記録なし';}
-      const W=820,H=190,padL=48,padR=12,padT=12,padB=30,chartW=W-padL-padR,chartH=H-padT-padB;
-      const minTs=range.start,maxTs=Math.max(range.end,range.start+86400000);
-      const xOf=t=>padL+((Number(t)-minTs)/(maxTs-minTs))*chartW;
-      const yPain=v=>padT+chartH-(Math.max(0,Math.min(10,Number(v)||0))/10)*chartH;
-      let pain='';
-      for(let i=0;i<=10;i+=2){const y=yPain(i);pain+=\`<line x1="\${padL}" y1="\${y}" x2="\${W-padR}" y2="\${y}" stroke="#e2e8f0"/><text x="\${padL-7}" y="\${y+4}" text-anchor="end" font-size="10" fill="#475569">\${i}</text>\`;}
-      const byRegion={};painVisible.forEach(r=>(byRegion[r.region]=byRegion[r.region]||[]).push(r));
-      Object.keys(byRegion).forEach(region=>{
-        const recs=[...byRegion[region]].sort((a,b)=>Number(a.startTs)-Number(b.startTs));
-        const col=colorOf(region); let prev=null;
-        recs.forEach(r=>{
-          const x1=xOf(r.startTs),y1=yPain(r.level),x2=xOf(r.endTs||r.startTs);
-          const contiguous=prev&&r.sessionId&&prev.sessionId===r.sessionId&&Number(r.segmentIndex)===Number(prev.segmentIndex)+1&&Number(prev.endTs)===Number(r.startTs);
-          if(contiguous){pain+=\`<line x1="\${xOf(prev.endTs)}" y1="\${yPain(prev.level)}" x2="\${x1}" y2="\${y1}" stroke="\${col}" stroke-width="2.5"/>\`;}
-          pain+=\`<line x1="\${x1}" y1="\${y1}" x2="\${x2}" y2="\${y1}" stroke="\${col}" stroke-width="2.5"/>\`;
-          pain+=\`<circle cx="\${x1}" cy="\${y1}" r="3.5" fill="\${col}"/><circle cx="\${x2}" cy="\${y1}" r="2" fill="\${col}"/>\`;
-          prev=r;
-        });
-      });
-      const xSteps=range.days<=1?8:(range.days<=3?6:4);for(let i=0;i<=xSteps;i++){const ratio=i/xSteps,ts=minTs+ratio*(maxTs-minTs),x=padL+ratio*chartW;pain+=\`<text x="\${x}" y="\${H-8}" text-anchor="middle" font-size="10" fill="#475569">\${escSvg(xLabel(ts,range.days))}</text>\`;}
-      if(painHolder)painHolder.innerHTML=svgShell(W,H,pain);
-
-      const yBleed=v=>padT+chartH-(Math.max(0,Math.min(1,Number(v)||0)))*chartH;
-      let bleed='';
-      [[0,'少ない'],[.25,'やや少ない'],[.5,'中間'],[.75,'やや多い'],[1,'多い']].forEach(([v,label])=>{const y=yBleed(v);bleed+=\`<line x1="\${padL}" y1="\${y}" x2="\${W-padR}" y2="\${y}" stroke="#e2e8f0"/><text x="\${padL-7}" y="\${y+4}" text-anchor="end" font-size="9" fill="#475569">\${label}</text>\`;});
-      bleedVisible.forEach((r,idx)=>{const a=bAxes(r);if(a.x==null)return;const x=xOf(r.startTs),y=yBleed(a.x);const label=(new Date(r.startTs)).toLocaleString('ja-JP');bleed+=\`<circle data-bleed-index="\${idx}" cx="\${x}" cy="\${y}" r="5" fill="#ec4899" stroke="#fff" stroke-width="1.5"><title>\${escSvg(label)} / \${escSvg(bAmountLabel(a.x))} / \${escSvg(bTextureText(r))} / \${escSvg(r.color||'記録なし')}</title></circle>\`;});
-      for(let i=0;i<=xSteps;i++){const ratio=i/xSteps,ts=minTs+ratio*(maxTs-minTs),x=padL+ratio*chartW;bleed+=\`<text x="\${x}" y="\${H-8}" text-anchor="middle" font-size="10" fill="#475569">\${escSvg(xLabel(ts,range.days))}</text>\`;}
-      if(bleedHolder){bleedHolder.innerHTML=svgShell(W,H,bleed);}
+      // 痛み：記録された各セグメントの値のみを描き、長い空白は結ばない
+      const painBuckets=new Map();painVisible.forEach(r=>{const t=Number(r.startTs),bucket=Math.round(t/(30*60000))*30*60000;const v=Number(r.level)||0;painBuckets.set(bucket,Math.max(painBuckets.get(bucket)||0,v));});
+      const painPts=[...painBuckets.entries()].map(([t,v])=>({t,v}));
+      drawSeries(painPts,'#3b82f6',Math.max(6*3600000,range.days*3600000/8));
+      // 出血量：記録量を0〜10の共通目盛りに換算
+      const bleedPts=bleedVisible.map(r=>{const a=bAxes(r);return a.x==null?null:{t:Number(r.startTs),v:Math.max(0,Math.min(10,a.x*10))};}).filter(Boolean);
+      drawSeries(bleedPts,'#ef4444',Math.max(6*3600000,range.days*3600000/8));
+      // 排尿：6時間ごとの記録件数を表示。空の時間帯はゼロとして補完しない
+      const bins=new Map();urineVisible.forEach(r=>{const t=Number(r.startTs),bin=Math.floor(t/(6*3600000))*6*3600000;bins.set(bin,(bins.get(bin)||0)+1);});
+      const urinePts=[...bins.entries()].sort((a,b)=>a[0]-b[0]).map(([t,n])=>({t:t+3*3600000,v:Math.min(10,n)}));
+      drawSeries(urinePts,'#eab308',6*3600000,false);
+      // 凡例
+      const ly=12;svg+=\`<line x1="\${padL+5}" y1="\${ly}" x2="\${padL+25}" y2="\${ly}" stroke="#3b82f6" stroke-width="3"/><text x="\${padL+30}" y="\${ly+4}" font-size="12" fill="#334155">痛み</text><line x1="\${padL+95}" y1="\${ly}" x2="\${padL+115}" y2="\${ly}" stroke="#ef4444" stroke-width="3"/><text x="\${padL+120}" y="\${ly+4}" font-size="12" fill="#334155">出血</text><line x1="\${padL+185}" y1="\${ly}" x2="\${padL+205}" y2="\${ly}" stroke="#eab308" stroke-width="3"/><text x="\${padL+210}" y="\${ly+4}" font-size="12" fill="#334155">排尿</text>\`;
+      holder.innerHTML=svgShell(W,H,svg);
     }
     window.onload=function(){ renderDoctorCharts(); setTimeout(renderDoctorCharts,80); window.addEventListener('resize',renderDoctorCharts); };
   <\/script>
@@ -3109,7 +3110,7 @@ document.getElementById('privacyAckBtn').addEventListener('click', () => {
   try{ localStorage.setItem(PRIVACY_KEY, '1'); }catch(e){}
   document.getElementById('privacyOverlay').style.display = 'none';
 });
-document.getElementById('showPrivacyBtn').addEventListener('click', () => {
+document.getElementById('showPrivacyBtnTop').addEventListener('click', () => {
   document.getElementById('privacyOverlay').style.display = 'flex';
 });
 
