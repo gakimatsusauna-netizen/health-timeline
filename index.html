@@ -2569,7 +2569,7 @@ document.getElementById('doctorViewBtn').addEventListener('click', () => {
   <li>出血：${_bleed.length}件の記録</li>
   </ul>
   <div style="font-size:12.5px;font-weight:700">記録の件数（項目別）</div><ul style="font-size:13px;columns:2">${_cnt||'<li>記録なし</li>'}</ul>
-  ${_co?`<div style="font-size:12.5px;font-weight:700">同じ時間帯の記録の重なり</div><ul style="font-size:13px">${_co}</ul><p style="font-size:11px;color:#64748b">記録の時刻が近いことを示すだけで、原因と結果を示すものではありません。</p>`:''};
+  ${_co?`<div style="font-size:12.5px;font-weight:700">同じ時間帯の記録の重なり</div><ul style="font-size:13px">${_co}</ul><p style="font-size:11px;color:#64748b">記録の時刻が近いことを示すだけで、原因と結果を示すものではありません。</p>`:''}`;
 
   const htmlContent = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>症状経過サマリー - 診察用提出シート</title>
   <style>
