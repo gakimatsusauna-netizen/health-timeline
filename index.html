@@ -2569,10 +2569,7 @@ document.getElementById('doctorViewBtn').addEventListener('click', () => {
   <li>出血：${_bleed.length}件の記録</li>
   </ul>
   <div style="font-size:12.5px;font-weight:700">記録の件数（項目別）</div><ul style="font-size:13px;columns:2">${_cnt||'<li>記録なし</li>'}</ul>
-  ${_co?`<div style="font-size:12.5px;font-weight:700">同じ時間帯の記録の重なり</div><ul style="font-size:13px">${_co}</ul><p style="font-size:11px;color:#64748b">記録の時刻が近いことを示すだけで、原因と結果を示すものではありません。</p>`:''}
-  <h2>0-2. 全記録の時間軸</h2>
-  <div class="chart-box">${_laneSvg}</div>
-  <p style="font-size:11px;color:#64748b">●＝記録がある時点、太線＝記録された継続時間、○＝「痛みなし」と明示された記録。空白は記録がないことを示し、症状がなかったことを意味しません。記録のない区間は線でつなぎません。</p>`;
+  ${_co?`<div style="font-size:12.5px;font-weight:700">同じ時間帯の記録の重なり</div><ul style="font-size:13px">${_co}</ul><p style="font-size:11px;color:#64748b">記録の時刻が近いことを示すだけで、原因と結果を示すものではありません。</p>`:''};
 
   const htmlContent = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>症状経過サマリー - 診察用提出シート</title>
   <style>
